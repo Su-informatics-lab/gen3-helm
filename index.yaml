@@ -275,6 +275,20 @@ entries:
   guppy:
   - apiVersion: v2
     appVersion: master
+    created: "2023-12-12T16:18:47.846983741Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.8
+    description: A Helm chart for gen3 Guppy Service
+    digest: db141c08152aa0572cced7cd45430cd9acd917be6e508b6976212979995ce48a
+    name: guppy
+    type: application
+    urls:
+    - https://github.com/Su-informatics-lab/gen3-helm/releases/download/guppy-0.1.10/guppy-0.1.10.tgz
+    version: 0.1.10
+  - apiVersion: v2
+    appVersion: master
     created: "2023-12-12T15:49:20.723096166Z"
     dependencies:
     - name: common
@@ -510,4 +524,4 @@ entries:
     urls:
     - https://github.com/Su-informatics-lab/gen3-helm/releases/download/wts-0.1.11/wts-0.1.11.tgz
     version: 0.1.11
-generated: "2023-12-12T15:49:23.416048883Z"
+generated: "2023-12-12T16:18:47.847000001Z"
