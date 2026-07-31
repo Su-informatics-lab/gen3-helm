@@ -73,6 +73,17 @@ entries:
     urls:
     - https://github.com/Su-informatics-lab/gen3-helm/releases/download/ambassador-0.1.9/ambassador-0.1.9.tgz
     version: 0.1.9
+  anagine:
+  - apiVersion: v2
+    appVersion: dev
+    created: "2026-07-31T21:21:45.169492253Z"
+    description: Helm chart for the ARDAC Anagine application
+    digest: 09a89dbd62f44ac322f3e4e9e37718155c817012902468874fb2cd852ddec6e2
+    name: anagine
+    type: application
+    urls:
+    - https://github.com/Su-informatics-lab/gen3-helm/releases/download/anagine-0.1.0/anagine-0.1.0.tgz
+    version: 0.1.0
   arborist:
   - apiVersion: v2
     appVersion: master
@@ -1763,4 +1774,4 @@ entries:
     urls:
     - https://github.com/Su-informatics-lab/gen3-helm/releases/download/wts-0.1.11/wts-0.1.11.tgz
     version: 0.1.11
-generated: "2025-11-12T19:37:38.151305146Z"
+generated: "2026-07-31T21:21:45.169630999Z"
