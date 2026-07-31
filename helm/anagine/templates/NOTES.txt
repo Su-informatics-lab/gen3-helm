@@ -1,0 +1,8 @@
+Anagine has been rendered for namespace {{ .Release.Namespace }}.
+
+The chart expects Secret {{ .Values.existingSecret.name }} with key
+{{ .Values.existingSecret.key }} to exist before the workloads start.
+
+Check the workloads with:
+  kubectl get deployment,service,pvc -n {{ .Release.Namespace }} \
+    -l app.kubernetes.io/instance={{ .Release.Name }}

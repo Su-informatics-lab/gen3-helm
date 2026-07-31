@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anagine-config
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+data:
+  COMPOSE_PROJECT_NAME: {{ .Values.config.composeProjectName | quote }}
+  OPENAI_BASE_URL: {{ .Values.config.openaiBaseUrl | quote }}
+  OPENAI_MODEL: {{ .Values.config.openaiModel | quote }}
+  OPENAI_INSECURE_TLS: {{ .Values.config.openaiInsecureTls | quote }}
+  ANAGINE_OLLAMA_MODEL: {{ .Values.config.anagineOllamaModel | quote }}
+  ANAGINE_GUPPY_HOST: {{ .Values.config.anagineGuppyHost | quote }}
+  ANAGINE_ARBORIST_HOST: {{ .Values.config.anagineArboristHost | quote }}

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rserve
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rserve
+  {{- with .Values.rserve.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.rserve.service.type }}
+  ports:
+    - name: rserve
+      port: {{ .Values.rserve.service.port }}
+      targetPort: rserve
+      protocol: TCP
+  selector:
+    app: rserve

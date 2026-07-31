@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rserve
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rserve
+spec:
+  replicas: {{ .Values.rserve.replicaCount }}
+  selector:
+    matchLabels:
+      app: rserve
+  template:
+    metadata:
+      {{- with .Values.rserve.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: rserve
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: rserve
+        {{- with .Values.rserve.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.rserve.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.rserve.podSecurityContext | nindent 8 }}
+      containers:
+        - name: rserve
+          image: "{{ .Values.rserve.image.repository }}:{{ .Values.rserve.image.tag }}"
+          imagePullPolicy: {{ .Values.rserve.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.rserve.securityContext | nindent 12 }}
+          ports:
+            - name: rserve
+              containerPort: {{ .Values.rserve.service.targetPort }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.rserve.livenessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.rserve.resources | nindent 12 }}
+      {{- with .Values.rserve.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.rserve.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.rserve.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

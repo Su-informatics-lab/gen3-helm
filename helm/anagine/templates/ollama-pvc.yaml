@@ -1,0 +1,16 @@
+{{- if and .Values.ollama.persistence.enabled (not .Values.ollama.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-data
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ollama
+spec:
+  accessModes:
+    {{- toYaml .Values.ollama.persistence.accessModes | nindent 4 }}
+  storageClassName: {{ .Values.ollama.persistence.storageClass | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.ollama.persistence.size }}
+{{- end }}

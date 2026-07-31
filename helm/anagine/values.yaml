@@ -1,0 +1,230 @@
+---
+# Default values for Anagine.
+
+# -- Anagine API configuration.
+api:
+  # -- Number of Anagine API replicas.
+  replicaCount: 2
+  image:
+    # -- Anagine API image repository.
+    repository: quay.io/sulab/anagine-api
+    # -- Anagine API image tag.
+    tag: latest
+    # -- Anagine API image pull policy.
+    pullPolicy: Always
+  # -- Command used to start the Anagine API.
+  command:
+    - sh
+    - -lc
+    - node src/server/server.js
+  env:
+    # -- Port on which the Anagine API listens.
+    port: "3000"
+    # -- Rserve Service hostname.
+    rserveHost: rserve
+    # -- Rserve Service port.
+    rservePort: "6311"
+    # -- Python kernel URL.
+    pyKernelUrl: http://py-kernel:8000
+    # -- Directory used for generated reports.
+    reportsDir: /tmp/reports
+    # -- Forced report output format.
+    reportForceFormat: pdf
+    # -- Ollama API URL.
+    ollamaHost: http://ollama:11434
+  service:
+    # -- Kubernetes Service type.
+    type: ClusterIP
+    # -- Service port.
+    port: 80
+    # -- Container target port.
+    targetPort: 3000
+    # -- Service annotations.
+    annotations: {}
+  # -- Pod annotations.
+  podAnnotations: {}
+  # -- Additional pod labels.
+  podLabels: {}
+  # -- Image pull secrets.
+  imagePullSecrets: []
+  # -- Pod security context.
+  podSecurityContext: {}
+  # -- Container security context.
+  securityContext: {}
+  # -- Resource requests and limits.
+  resources: {}
+  # -- Node selector.
+  nodeSelector: {}
+  # -- Tolerations.
+  tolerations: []
+  # -- Affinity rules.
+  affinity: {}
+
+# -- Ollama configuration.
+ollama:
+  # -- Number of Ollama replicas. Keep at one with the default RWO PVC.
+  replicaCount: 1
+  image:
+    # -- Ollama image repository.
+    repository: ollama/ollama
+    # -- Ollama image tag.
+    tag: latest
+    # -- Ollama image pull policy.
+    pullPolicy: Always
+  service:
+    # -- Kubernetes Service type.
+    type: ClusterIP
+    # -- Service port.
+    port: 11434
+    # -- Container target port.
+    targetPort: 11434
+    # -- Service annotations.
+    annotations: {}
+  modelPull:
+    # -- Pull the configured Ollama model before starting the main container.
+    enabled: true
+  persistence:
+    # -- Persist the model cache in a PVC. When disabled, use an emptyDir.
+    enabled: true
+    # -- Existing PVC name. Leave empty to create the chart PVC.
+    existingClaim: ""
+    # -- StorageClass used by the generated PVC.
+    storageClass: gp2
+    # -- PVC access modes.
+    accessModes:
+      - ReadWriteOnce
+    # -- Requested PVC size.
+    size: 20Gi
+    # -- Ollama model cache mount path.
+    mountPath: /root/.ollama
+  # -- Pod annotations.
+  podAnnotations: {}
+  # -- Additional pod labels.
+  podLabels: {}
+  # -- Image pull secrets.
+  imagePullSecrets: []
+  # -- Pod security context.
+  podSecurityContext: {}
+  # -- Container security context.
+  securityContext: {}
+  # -- Resource requests and limits.
+  resources: {}
+  # -- Node selector.
+  nodeSelector: {}
+  # -- Tolerations.
+  tolerations: []
+  # -- Affinity rules.
+  affinity: {}
+
+# -- Python kernel configuration.
+pyKernel:
+  # -- Number of Python kernel replicas.
+  replicaCount: 2
+  image:
+    # -- Python kernel image repository.
+    repository: quay.io/sulab/anagine-pykernel
+    # -- Python kernel image tag.
+    tag: latest
+    # -- Python kernel image pull policy.
+    pullPolicy: Always
+  service:
+    # -- Kubernetes Service type.
+    type: ClusterIP
+    # -- Service port.
+    port: 8000
+    # -- Container target port.
+    targetPort: 8000
+    # -- Service annotations.
+    annotations: {}
+  # -- Pod annotations.
+  podAnnotations: {}
+  # -- Additional pod labels.
+  podLabels: {}
+  # -- Image pull secrets.
+  imagePullSecrets: []
+  # -- Pod security context.
+  podSecurityContext: {}
+  # -- Container security context.
+  securityContext: {}
+  # -- Resource requests and limits.
+  resources: {}
+  # -- Node selector.
+  nodeSelector: {}
+  # -- Tolerations.
+  tolerations: []
+  # -- Affinity rules.
+  affinity: {}
+
+# -- Rserve configuration.
+rserve:
+  # -- Number of Rserve replicas.
+  replicaCount: 2
+  image:
+    # -- Rserve image repository.
+    repository: quay.io/sulab/anagine-rserve
+    # -- Rserve image tag.
+    tag: latest
+    # -- Rserve image pull policy.
+    pullPolicy: Always
+  service:
+    # -- Kubernetes Service type.
+    type: ClusterIP
+    # -- Service port.
+    port: 6311
+    # -- Container target port.
+    targetPort: 6311
+    # -- Service annotations.
+    annotations: {}
+  # -- Rserve liveness probe.
+  livenessProbe:
+    exec:
+      command:
+        - bash
+        - -lc
+        - "</dev/tcp/localhost/6311"
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 10
+  # -- Pod annotations.
+  podAnnotations: {}
+  # -- Additional pod labels.
+  podLabels: {}
+  # -- Image pull secrets.
+  imagePullSecrets: []
+  # -- Pod security context.
+  podSecurityContext: {}
+  # -- Container security context.
+  securityContext: {}
+  # -- Resource requests and limits.
+  resources: {}
+  # -- Node selector.
+  nodeSelector: {}
+  # -- Tolerations.
+  tolerations: []
+  # -- Affinity rules.
+  affinity: {}
+
+# -- Non-sensitive configuration rendered into anagine-config.
+config:
+  # -- Compose project name retained from the reference deployment.
+  composeProjectName: anagine
+  # -- OpenAI-compatible API base URL.
+  openaiBaseUrl: https://18.189.29.178/v1
+  # -- OpenAI-compatible model name.
+  openaiModel: gpt-oss:20b
+  # -- Permit insecure TLS for the OpenAI-compatible endpoint.
+  openaiInsecureTls: "true"
+  # -- Ollama model used by Anagine and pulled by the Ollama init container.
+  anagineOllamaModel: llama3.2:1b
+  # -- Guppy endpoint used by Anagine.
+  anagineGuppyHost: http://revproxy-service.default.svc.cluster.local/guppy
+  # -- Arborist endpoint used by Anagine.
+  anagineArboristHost: http://revproxy-service.default.svc.cluster.local/authz
+
+# -- Existing Secret containing the API key. The chart never creates it.
+existingSecret:
+  # -- Existing Secret name.
+  name: anagine-secret
+  # -- Key in the existing Secret.
+  key: OPENAI_API_KEY

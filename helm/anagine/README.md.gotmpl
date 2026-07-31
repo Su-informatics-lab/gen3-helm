@@ -1,0 +1,56 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+## Prerequisites
+
+- Access to the `quay.io/sulab` image repositories configured in `values.yaml`.
+- External Secrets Operator and the `gen3-secret-store` SecretStore in `default`.
+- An AWS Secrets Manager object named `ardac2prd-default-anagine-creds` with an `OPENAI_API_KEY` property.
+- The `gp2` StorageClass, or a persistence override for Ollama.
+
+## Secret setup
+
+The chart never renders a Kubernetes Secret or accepts an API key as a value. Create the AWS secret outside this repository, then apply the example ExternalSecret and wait for synchronization:
+
+```console
+kubectl --context ardac2prd apply -f helm/anagine/examples/ardac2prd-external-secret.yaml
+kubectl --context ardac2prd -n default wait \
+  --for=condition=Ready externalsecret/anagine-secret --timeout=2m
+```
+
+Do not commit the API key or pass it through Helm values.
+
+## Installation
+
+Install Anagine into `default` so revproxy can resolve the `anagine-dev` Service directly and the ExternalSecret can use the existing namespaced SecretStore:
+
+```console
+helm upgrade --install anagine ./helm/anagine --namespace default
+```
+
+The chart is namespace-agnostic, but the ARDAC defaults and ExternalSecret example target `default`. No cross-namespace ExternalName Service is required.
+
+## Revproxy GitOps configuration
+
+The Gen3 values must retain this route:
+
+```yaml
+revproxy:
+  extraServices:
+    - name: anagine
+      path: /anagine
+      serviceName: anagine-dev
+```
+
+This configuration is already present in `ardac2prd/portal.ardac.org/values.yaml` in the [gen3-gitops repository](https://github.com/Su-informatics-lab/gen3-gitops/blob/main/ardac2prd/portal.ardac.org/values.yaml). Portal navigation and GitOps changes are managed in that repository, not by this chart.
+
+## Ollama persistence
+
+The default deployment uses one Ollama replica and a 20 GiB `gp2` ReadWriteOnce PVC. An init container starts a temporary Ollama server against that volume and pulls `config.anagineOllamaModel` before the main server starts. Keep `ollama.replicaCount` at one with this storage mode.
+
+Set `ollama.persistence.enabled=false` for ephemeral storage, or set `ollama.persistence.existingClaim` to use a separately managed PVC.
+
+{{ template "chart.valuesSection" . }}
