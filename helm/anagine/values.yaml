@@ -177,11 +177,8 @@ rserve:
     annotations: {}
   # -- Rserve liveness probe.
   livenessProbe:
-    exec:
-      command:
-        - bash
-        - -lc
-        - "</dev/tcp/localhost/6311"
+    tcpSocket:
+      port: rserve
     initialDelaySeconds: 5
     periodSeconds: 10
     timeoutSeconds: 3

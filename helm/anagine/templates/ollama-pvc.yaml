@@ -9,7 +9,9 @@ metadata:
 spec:
   accessModes:
     {{- toYaml .Values.ollama.persistence.accessModes | nindent 4 }}
-  storageClassName: {{ .Values.ollama.persistence.storageClass | quote }}
+  {{- with .Values.ollama.persistence.storageClass }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.ollama.persistence.size }}

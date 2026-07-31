@@ -137,13 +137,13 @@ Set `ollama.persistence.enabled=false` for ephemeral storage, or set `ollama.per
 | pyKernel.service.targetPort | int | `8000` | Container target port. |
 | pyKernel.service.type | string | `"ClusterIP"` | Kubernetes Service type. |
 | pyKernel.tolerations | list | `[]` | Tolerations. |
-| rserve | object | `{"affinity":{},"image":{"pullPolicy":"Always","repository":"quay.io/sulab/anagine-rserve","tag":"latest"},"imagePullSecrets":[],"livenessProbe":{"exec":{"command":["bash","-lc","</dev/tcp/localhost/6311"]},"failureThreshold":10,"initialDelaySeconds":5,"periodSeconds":10,"timeoutSeconds":3},"nodeSelector":{},"podAnnotations":{},"podLabels":{},"podSecurityContext":{},"replicaCount":2,"resources":{},"securityContext":{},"service":{"annotations":{},"port":6311,"targetPort":6311,"type":"ClusterIP"},"tolerations":[]}` | Rserve configuration. |
+| rserve | object | `{"affinity":{},"image":{"pullPolicy":"Always","repository":"quay.io/sulab/anagine-rserve","tag":"latest"},"imagePullSecrets":[],"livenessProbe":{"failureThreshold":10,"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":"rserve"},"timeoutSeconds":3},"nodeSelector":{},"podAnnotations":{},"podLabels":{},"podSecurityContext":{},"replicaCount":2,"resources":{},"securityContext":{},"service":{"annotations":{},"port":6311,"targetPort":6311,"type":"ClusterIP"},"tolerations":[]}` | Rserve configuration. |
 | rserve.affinity | object | `{}` | Affinity rules. |
 | rserve.image.pullPolicy | string | `"Always"` | Rserve image pull policy. |
 | rserve.image.repository | string | `"quay.io/sulab/anagine-rserve"` | Rserve image repository. |
 | rserve.image.tag | string | `"latest"` | Rserve image tag. |
 | rserve.imagePullSecrets | list | `[]` | Image pull secrets. |
-| rserve.livenessProbe | object | `{"exec":{"command":["bash","-lc","</dev/tcp/localhost/6311"]},"failureThreshold":10,"initialDelaySeconds":5,"periodSeconds":10,"timeoutSeconds":3}` | Rserve liveness probe. |
+| rserve.livenessProbe | object | `{"failureThreshold":10,"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":"rserve"},"timeoutSeconds":3}` | Rserve liveness probe. |
 | rserve.nodeSelector | object | `{}` | Node selector. |
 | rserve.podAnnotations | object | `{}` | Pod annotations. |
 | rserve.podLabels | object | `{}` | Additional pod labels. |
