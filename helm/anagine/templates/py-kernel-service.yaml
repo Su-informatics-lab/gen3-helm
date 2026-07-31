@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: py-kernel
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+    app.kubernetes.io/component: py-kernel
+  {{- with .Values.pyKernel.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.pyKernel.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.pyKernel.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: py-kernel
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: py-kernel

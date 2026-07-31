@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ollama
+spec:
+  replicas: {{ .Values.ollama.replicaCount }}
+  selector:
+    matchLabels:
+      app: ollama
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: ollama
+  template:
+    metadata:
+      {{- with .Values.ollama.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: ollama
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: ollama
+        {{- with .Values.ollama.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.ollama.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.ollama.podSecurityContext | nindent 8 }}
+      {{- if .Values.ollama.modelPull.enabled }}
+      initContainers:
+        - name: pull-model
+          image: "{{ .Values.ollama.image.repository }}:{{ .Values.ollama.image.tag }}"
+          imagePullPolicy: {{ .Values.ollama.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              ollama serve >/tmp/ollama-init.log 2>&1 &
+              server_pid=$!
+              trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+              attempt=0
+              until ollama list >/dev/null 2>&1; do
+                attempt=$((attempt + 1))
+                if [ "$attempt" -ge 60 ]; then
+                  cat /tmp/ollama-init.log
+                  exit 1
+                fi
+                sleep 2
+              done
+              ollama pull "$OLLAMA_MODEL"
+          env:
+            - name: OLLAMA_HOST
+              value: 127.0.0.1:11434
+            - name: OLLAMA_MODEL
+              value: {{ .Values.config.anagineOllamaModel | quote }}
+          volumeMounts:
+            - name: ollama-data
+              mountPath: {{ .Values.ollama.persistence.mountPath }}
+      {{- end }}
+      containers:
+        - name: ollama
+          image: "{{ .Values.ollama.image.repository }}:{{ .Values.ollama.image.tag }}"
+          imagePullPolicy: {{ .Values.ollama.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.ollama.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.ollama.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: OLLAMA_HOST
+              value: 0.0.0.0:11434
+          volumeMounts:
+            - name: ollama-data
+              mountPath: {{ .Values.ollama.persistence.mountPath }}
+          resources:
+            {{- toYaml .Values.ollama.resources | nindent 12 }}
+      volumes:
+        - name: ollama-data
+          {{- if .Values.ollama.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ default "ollama-data" .Values.ollama.persistence.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.ollama.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ollama.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ollama.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

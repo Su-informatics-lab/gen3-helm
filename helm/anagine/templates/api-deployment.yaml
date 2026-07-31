@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anagine-dev
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app: anagine-dev
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.api.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        app: anagine-dev
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: api
+        {{- with .Values.api.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.api.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.api.podSecurityContext | nindent 8 }}
+      containers:
+        - name: anagine-dev
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.api.securityContext | nindent 12 }}
+          command:
+            {{- toYaml .Values.api.command | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: ANAGINE_PORT
+              value: {{ .Values.api.env.port | quote }}
+            - name: RSERVE_HOST
+              value: {{ .Values.api.env.rserveHost | quote }}
+            - name: RSERVE_PORT
+              value: {{ .Values.api.env.rservePort | quote }}
+            - name: PYKERNEL_URL
+              value: {{ .Values.api.env.pyKernelUrl | quote }}
+            - name: REPORTS_DIR
+              value: {{ .Values.api.env.reportsDir | quote }}
+            - name: REPORT_FORCE_FORMAT
+              value: {{ .Values.api.env.reportForceFormat | quote }}
+            - name: ANAGINE_OLLAMA_HOST
+              value: {{ .Values.api.env.ollamaHost | quote }}
+            - name: OPENAI_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: anagine-config
+                  key: OPENAI_BASE_URL
+            - name: OPENAI_MODEL
+              valueFrom:
+                configMapKeyRef:
+                  name: anagine-config
+                  key: OPENAI_MODEL
+            - name: OPENAI_INSECURE_TLS
+              valueFrom:
+                configMapKeyRef:
+                  name: anagine-config
+                  key: OPENAI_INSECURE_TLS
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecret.name }}
+                  key: {{ .Values.existingSecret.key }}
+            - name: ANAGINE_OLLAMA_MODEL
+              valueFrom:
+                configMapKeyRef:
+                  name: anagine-config
+                  key: ANAGINE_OLLAMA_MODEL
+            - name: ANAGINE_GUPPY_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: anagine-config
+                  key: ANAGINE_GUPPY_HOST
+            - name: ANAGINE_ARBORIST_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: anagine-config
+                  key: ANAGINE_ARBORIST_HOST
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+      {{- with .Values.api.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.api.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.api.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

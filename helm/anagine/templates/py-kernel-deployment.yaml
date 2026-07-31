@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py-kernel
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+    app.kubernetes.io/component: py-kernel
+spec:
+  replicas: {{ .Values.pyKernel.replicaCount }}
+  selector:
+    matchLabels:
+      app: py-kernel
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: py-kernel
+  template:
+    metadata:
+      {{- with .Values.pyKernel.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: py-kernel
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: py-kernel
+        {{- with .Values.pyKernel.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.pyKernel.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.pyKernel.podSecurityContext | nindent 8 }}
+      containers:
+        - name: py-kernel
+          image: "{{ .Values.pyKernel.image.repository }}:{{ .Values.pyKernel.image.tag }}"
+          imagePullPolicy: {{ .Values.pyKernel.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.pyKernel.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.pyKernel.service.targetPort }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.pyKernel.resources | nindent 12 }}
+      {{- with .Values.pyKernel.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pyKernel.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pyKernel.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

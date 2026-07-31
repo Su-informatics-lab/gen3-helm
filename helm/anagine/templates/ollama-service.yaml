@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  labels:
+    {{- include "anagine.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ollama
+  {{- with .Values.ollama.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.ollama.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.ollama.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: ollama
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: ollama
