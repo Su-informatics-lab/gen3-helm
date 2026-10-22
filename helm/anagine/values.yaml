@@ -1,6 +1,17 @@
 ---
 # Default values for Anagine.
 
+# -- Kubernetes service account used by the Anagine API.
+serviceAccount:
+  # -- Create a service account for the Anagine API.
+  create: false
+  # -- Service account name. Defaults to the chart name when creation is enabled.
+  name: ""
+  # -- Annotations added to the service account, such as an AWS IRSA role ARN.
+  annotations: {}
+  # -- Mount the Kubernetes service account token into Anagine API pods.
+  automountServiceAccountToken: false
+
 # -- Anagine API configuration.
 api:
   # -- Number of Anagine API replicas.
@@ -32,6 +43,10 @@ api:
     reportForceFormat: pdf
     # -- Ollama API URL.
     ollamaHost: http://ollama:11434
+    # -- S3 bucket used for generated reports. Empty preserves local-only storage.
+    reportS3Bucket: ""
+    # -- AWS region containing the report bucket.
+    reportS3Region: ""
   service:
     # -- Kubernetes Service type.
     type: ClusterIP

@@ -1,6 +1,6 @@
 # anagine
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: dev](https://img.shields.io/badge/AppVersion-dev-informational?style=flat-square)
+![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: dev](https://img.shields.io/badge/AppVersion-dev-informational?style=flat-square)
 
 Helm chart for the ARDAC Anagine application
 
@@ -57,13 +57,15 @@ Set `ollama.persistence.enabled=false` for ephemeral storage, or set `ollama.per
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| api | object | `{"affinity":{},"command":["sh","-lc","node src/server/server.js"],"env":{"ollamaHost":"http://ollama:11434","port":"3000","pyKernelUrl":"http://py-kernel:8000","reportForceFormat":"pdf","reportsDir":"/tmp/reports","rserveHost":"rserve","rservePort":"6311"},"image":{"pullPolicy":"Always","repository":"quay.io/sulab/anagine-api","tag":"latest"},"imagePullSecrets":[],"nodeSelector":{},"podAnnotations":{},"podLabels":{},"podSecurityContext":{},"replicaCount":2,"resources":{},"securityContext":{},"service":{"annotations":{},"port":80,"targetPort":3000,"type":"ClusterIP"},"tolerations":[]}` | Anagine API configuration. |
+| api | object | `{"affinity":{},"command":["sh","-lc","node src/server/server.js"],"env":{"ollamaHost":"http://ollama:11434","port":"3000","pyKernelUrl":"http://py-kernel:8000","reportForceFormat":"pdf","reportS3Bucket":"","reportS3Region":"","reportsDir":"/tmp/reports","rserveHost":"rserve","rservePort":"6311"},"image":{"pullPolicy":"Always","repository":"quay.io/sulab/anagine-api","tag":"latest"},"imagePullSecrets":[],"nodeSelector":{},"podAnnotations":{},"podLabels":{},"podSecurityContext":{},"replicaCount":2,"resources":{},"securityContext":{},"service":{"annotations":{},"port":80,"targetPort":3000,"type":"ClusterIP"},"tolerations":[]}` | Anagine API configuration. |
 | api.affinity | object | `{}` | Affinity rules. |
 | api.command | list | `["sh","-lc","node src/server/server.js"]` | Command used to start the Anagine API. |
 | api.env.ollamaHost | string | `"http://ollama:11434"` | Ollama API URL. |
 | api.env.port | string | `"3000"` | Port on which the Anagine API listens. |
 | api.env.pyKernelUrl | string | `"http://py-kernel:8000"` | Python kernel URL. |
 | api.env.reportForceFormat | string | `"pdf"` | Forced report output format. |
+| api.env.reportS3Bucket | string | `""` | S3 bucket used for generated reports. Empty preserves local-only storage. |
+| api.env.reportS3Region | string | `""` | AWS region containing the report bucket. |
 | api.env.reportsDir | string | `"/tmp/reports"` | Directory used for generated reports. |
 | api.env.rserveHost | string | `"rserve"` | Rserve Service hostname. |
 | api.env.rservePort | string | `"6311"` | Rserve Service port. |
@@ -156,3 +158,8 @@ Set `ollama.persistence.enabled=false` for ephemeral storage, or set `ollama.per
 | rserve.service.targetPort | int | `6311` | Container target port. |
 | rserve.service.type | string | `"ClusterIP"` | Kubernetes Service type. |
 | rserve.tolerations | list | `[]` | Tolerations. |
+| serviceAccount | object | `{"annotations":{},"automountServiceAccountToken":false,"create":false,"name":""}` | Kubernetes service account used by the Anagine API. |
+| serviceAccount.annotations | object | `{}` | Annotations added to the service account, such as an AWS IRSA role ARN. |
+| serviceAccount.automountServiceAccountToken | bool | `false` | Mount the Kubernetes service account token into Anagine API pods. |
+| serviceAccount.create | bool | `false` | Create a service account for the Anagine API. |
+| serviceAccount.name | string | `""` | Service account name. Defaults to the chart name when creation is enabled. |

@@ -29,7 +29,10 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      automountServiceAccountToken: false
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      {{- if or .Values.serviceAccount.create .Values.serviceAccount.name }}
+      serviceAccountName: {{ include "anagine.serviceAccountName" . }}
+      {{- end }}
       {{- with .Values.api.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -63,6 +66,14 @@ spec:
               value: {{ .Values.api.env.reportForceFormat | quote }}
             - name: ANAGINE_OLLAMA_HOST
               value: {{ .Values.api.env.ollamaHost | quote }}
+            {{- with .Values.api.env.reportS3Bucket }}
+            - name: REPORT_S3_BUCKET
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.api.env.reportS3Region }}
+            - name: REPORT_S3_REGION
+              value: {{ . | quote }}
+            {{- end }}
             - name: OPENAI_BASE_URL
               valueFrom:
                 configMapKeyRef:

@@ -3,6 +3,15 @@
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{/* Service account used by the Anagine API. */}}
+{{- define "anagine.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+{{- default .Chart.Name .Values.serviceAccount.name -}}
+{{- else -}}
+{{- default "default" .Values.serviceAccount.name -}}
+{{- end -}}
+{{- end }}
+
 {{/* Labels shared by every resource. */}}
 {{- define "anagine.labels" -}}
 helm.sh/chart: {{ include "anagine.chart" . }}
