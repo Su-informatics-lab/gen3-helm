@@ -118,6 +118,16 @@ entries:
   anagine:
   - apiVersion: v2
     appVersion: dev
+    created: "2026-10-22T18:09:52.326926401Z"
+    description: Helm chart for the ARDAC Anagine application
+    digest: fbb3346f109be48255195c0863564b4b7c299420473e38240b44efa5be22fe2c
+    name: anagine
+    type: application
+    urls:
+    - https://github.com/Su-informatics-lab/gen3-helm/releases/download/anagine-0.2.0/anagine-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: dev
     created: "2026-10-22T17:33:10.577705421Z"
     description: Helm chart for the ARDAC Anagine application
     digest: e50865115435a6c8bbd97bf82f62e61cdb6a0afa3cef209536ff646521b1f40f
@@ -2744,4 +2754,4 @@ entries:
     urls:
     - https://github.com/Su-informatics-lab/gen3-helm/releases/download/zendesk-wrapper-0.1.0/zendesk-wrapper-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-22T17:33:10.577888754Z"
+generated: "2026-10-22T18:09:52.327137165Z"
